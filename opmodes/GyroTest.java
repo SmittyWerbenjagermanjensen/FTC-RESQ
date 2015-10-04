@@ -1,57 +1,42 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
-
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-
-
-
-
-    import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-    import com.qualcomm.robotcore.hardware.ColorSensor;
-    import com.qualcomm.robotcore.hardware.LegacyModule;
-    import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
-    import com.qualcomm.robotcore.hardware.LED;
-    import com.qualcomm.robotcore.hardware.TouchSensor;
-    import com.qualcomm.ftcrobotcontroller.R;
-
-    /**
-     * TeleOp Mode
-     * <p>
-     * Enables control of the robot via the gamepad
-     */
 
 public class GyroTest extends LinearOpMode {
         GyroSensor sensor1;
-        boolean x;
+        int x;
         double theta;
         int loops;
         double Averagetheta;
         double yaw;
         int desiredAngle;
+        double speed;
+        ElapsedTime timer;
 
-
-
-
-        public void rotation(int desiredAngle) {
-
-                yaw = (sensor1.getRotation() - Averagetheta) * time ;
-                if (yaw < desiredAngle) {
-                    x = true;
-                } else {
-                    //stop robot lel
-                    x = false;
-                }
-
+    public double getTheta() {
+        yaw += (sensor1.getRotation() - Averagetheta) * timer.time() / 1000000000;
+        return yaw;
         }
 
+    public void Gyroturn(int desiredAngle, double speed) {
 
-
+        if (getTheta() < 0.8*desiredAngle) { //If the current angle is equal to 80% of the desired Angle
+            //keep turning at "speed" power
+            x = 2;
+        } else if (getTheta() > 0.8*desiredAngle) {
+            //slow down the motors to a constant power
+            x = 1;
+        } else if (getTheta() > (desiredAngle - 1) && getTheta() < (desiredAngle + 1)) {
+            //if current angle is within 1 degree of desired angle
+            //stop the
+            x = 0;
+        } else if (getTheta() > desiredAngle + 1) {
+            //turn the other way at constant power
+            x = -1;
+        }
+    }
         @Override
-
         public void runOpMode() throws InterruptedException{
            sensor1 = hardwareMap.gyroSensor.get("sensor1");
 
@@ -64,15 +49,11 @@ public class GyroTest extends LinearOpMode {
             waitForStart();
 
             while (opModeIsActive()) {
-
-                rotation(90);
-
+            Gyroturn(90, 0.5);
+            telemetry.addData("x", x);
+            break;
             }
         }
-
-//Github pls
-
-
     }
 
 
