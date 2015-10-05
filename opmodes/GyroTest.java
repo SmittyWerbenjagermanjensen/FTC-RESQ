@@ -15,6 +15,7 @@ public class GyroTest extends LinearOpMode {
         ElapsedTime timer;
 
     public double getTheta() {
+        timer.reset();
         yaw += (sensor1.getRotation() - Averagetheta) * timer.time() / 1000000000;
         return yaw;
         }
@@ -24,13 +25,16 @@ public class GyroTest extends LinearOpMode {
         if (getTheta() < 0.8*desiredAngle) { //If the current angle is equal to 80% of the desired Angle
             //keep turning at "speed" power
             x = 2;
+
         } else if (getTheta() > 0.8*desiredAngle) {
             //slow down the motors to a constant power
             x = 1;
         } else if (getTheta() > (desiredAngle - 1) && getTheta() < (desiredAngle + 1)) {
             //if current angle is within 1 degree of desired angle
-            //stop the
+            //stop the motors
             x = 0;
+
+
         } else if (getTheta() > desiredAngle + 1) {
             //turn the other way at constant power
             x = -1;
@@ -50,7 +54,9 @@ public class GyroTest extends LinearOpMode {
 
             while (opModeIsActive()) {
             Gyroturn(90, 0.5);
+            timer.reset();
             telemetry.addData("x", x);
+            telemetry.addData("timer", timer);
             break;
             }
         }
