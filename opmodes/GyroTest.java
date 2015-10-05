@@ -14,13 +14,13 @@ public class GyroTest extends LinearOpMode {
         double speed;
         ElapsedTime timer;
 
-    public double getTheta() {
+    private double getTheta() {
         timer.reset();
-        yaw += (sensor1.getRotation() - Averagetheta) * timer.time() / 1000000000;
+        yaw += (sensor1.getRotation() - Averagetheta) * timer.time();
         return yaw;
         }
 
-    public void Gyroturn(int desiredAngle, double speed) {
+    private void Gyroturn(int desiredAngle, double speed) {
 
         if (getTheta() < 0.8*desiredAngle) { //If the current angle is equal to 80% of the desired Angle
             //keep turning at "speed" power
