@@ -4,6 +4,12 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 //
 // PushBotTouchEvent
 //
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 /**
  * Provide a basic autonomous operational mode that demonstrates the use of an
  * touch sensor to control the arm using a state machine for the Push Bot.
@@ -80,4 +86,47 @@ public class PushBotTouchEvent extends PushBotTelemetrySensors
 
     } // loop
 
+    /**
+     * Created by jzerez17 on 10/5/15.
+     */
+    public static class GyroTest2 extends OpMode {
+        TouchSensor touch;
+        GyroSensor gyro;
+        double avgTheta;
+        int i;
+        double yaw;
+        ElapsedTime timer;
+
+
+
+        public GyroTest2(){
+
+        }
+
+        @Override
+        public void init(){
+            touch = hardwareMap.touchSensor.get("sensor1");
+            gyro = hardwareMap.gyroSensor.get("sensor2");
+            for (i = 0; i < 5000; i++) {
+                avgTheta += (gyro.getRotation());
+            }
+            avgTheta = avgTheta/5000;
+
+        }
+
+        public void start(){
+
+        }
+        @Override
+        public void loop(){
+            yaw = 0;
+            timer.reset();
+            if (touch.isPressed()) {
+                    yaw += (gyro.getRotation() - avgTheta) * timer.time();
+            }
+            telemetry.addData("avgTheta", avgTheta);
+            telemetry.addData("yaw", yaw);
+            telemetry.addData("timer", timer.time());
+        }
+    }
 } // PushBotTouchEvent
