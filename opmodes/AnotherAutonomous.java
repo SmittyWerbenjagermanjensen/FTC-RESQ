@@ -11,8 +11,6 @@ public class AnotherAutonomous extends OpMode {
     DcMotor motor1;
     int x = 0;
 
-
-
     public AnotherAutonomous() {
     }
     @Override
