@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 
@@ -68,10 +69,11 @@ public class FtcOpModeRegister implements OpModeRegister {
      */
 
     //manager.register("AdafruitRGBExample", AdafruitRGBExample.class);
-    //manager.register("MRRGBExample", MRRGBExample.class);
+    manager.register("LinearOpModes", LinearOpMode.class);
     manager.register("ColorSensorDriver", ColorSensorDriver.class);
     manager.register("HTRGBExample", HTRGBExample.class);
-
+    manager.register("anotherautonomous", AnotherAutonomous.class);
+    manager.register("REAL_AUTONOMOUS", MyFirstStateMachine.class);
     //manager.register("IrSeekerOp", IrSeekerOp.class);
     //manager.register("CompassCalibration", CompassCalibration.class);
     //manager.register("I2cAddressChangeExample", LinearI2cAddressChange.class);
