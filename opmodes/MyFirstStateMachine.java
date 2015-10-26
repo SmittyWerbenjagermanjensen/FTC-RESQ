@@ -12,6 +12,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * Created by jzerez17 on 10/20/15.
  */
+
+
+
 public class MyFirstStateMachine extends OpMode {
     DcMotor motor1;
     DcMotor motor2;
@@ -26,45 +29,46 @@ public class MyFirstStateMachine extends OpMode {
     int lastPosRight = 0;
     double targetSpeed = 0;
     double climberArmPos = 0;
-    static double caden = 0.3;
+    final static double climberArmResetPos = 0.3;
     int loops = 0;
     double totalRed;
     double totalBlue;
     boolean redBeacon = false;
     boolean blueBeacon = false;
+    boolean climberArmReset = false;
 
 
 
-    static int left = 0;
-    static int right = 1;
-    static double oneEightyDegreeTurn = (17*Math.PI);
-    static double ninetyDegreeTurn = (8.5*Math.PI);
-    static double fortyFiveDegreeTurn = (4.2*Math.PI);
-    //declare int arrays
+    final static int left = 0;
+    final static int right = 1;
+    final static double oneEightyDegreeTurn = (17*Math.PI);
+    final static double ninetyDegreeTurn = (8.5*Math.PI);
+    final static double fortyFiveDegreeTurn = (4.2*Math.PI);
+
+    //declare double arrays
     //{left dist, right dist, speed}
 
     //Beacon Path
-    static double[] b1 = {8, 8, 35};
-    static double[] b2 = {fortyFiveDegreeTurn, 0, 25};
-    static double[] b3 = {68, 68, 25};
-    static double[] b4 = {0, fortyFiveDegreeTurn, 25};
-    static double[] b5 = {-2.5, -2.5, 25};
-
-    static double[][] beacon = {b1, b2, b3, b4, b5};
+    final static double[] b1 = {8, 8, 35};
+    final static double[] b2 = {fortyFiveDegreeTurn, 0, 25};
+    final static double[] b3 = {68, 68, 25};
+    final static double[] b4 = {0, fortyFiveDegreeTurn, 25};
+    final static double[] b5 = {-2.5, -2.5, 25};
+    final static double[][] beacon = {b1, b2, b3, b4, b5};
 
     //Repair Path
-    static double[] r1 = {-2.5,-2.5, 25};
-    static double[] r2 = {fortyFiveDegreeTurn/2, -fortyFiveDegreeTurn/2, 25};
-    static double[] r3 = {3, 3, 50};
-    static double[] r4 = {0, 0, 0};
-    static double[] r5 = {2.5, 2.5, 25};
-    static double[] r6 = {fortyFiveDegreeTurn/2, -fortyFiveDegreeTurn/2, 25};
-    static double[] r7 = {3, 3, 50};
-    static double[][] repair = {r1, r2, r3, r4, r5, r6, r7};
+    final static double[] r1 = {-2.5,-2.5, 25};
+    final static double[] r2 = {fortyFiveDegreeTurn/2, -fortyFiveDegreeTurn/2, 25};
+    final static double[] r3 = {3, 3, 50};
+    final static double[] r4 = {0, 0, 0};
+    final static double[] r5 = {2.5, 2.5, 25};
+    final static double[] r6 = {fortyFiveDegreeTurn/2, -fortyFiveDegreeTurn/2, 25};
+    final static double[] r7 = {3, 3, 50};
+    final static double[][] repair = {r1, r2, r3, r4, r5, r6, r7};
 
-    static double ticksPerInch = (1120/(Math.PI*4)
+    final static double ticksPerInch = (1120/(Math.PI*4)
     );
-    static int speedFactor = 100;
+    final static int speedFactor = 100;
     public ElapsedTime coolDown = new ElapsedTime();
     public ElapsedTime colorReading = new ElapsedTime();
 
@@ -86,12 +90,6 @@ public class MyFirstStateMachine extends OpMode {
         climberArmPos = 1;
         motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-
-
-
-
-
-
     }
     @Override
     public void start(){
@@ -136,26 +134,28 @@ public class MyFirstStateMachine extends OpMode {
 
 
             case 2:
-
+                color.enableLed(true);
                 climberArm.setPosition(climberArmPos);
                 coolDown.startTime();
                 colorReading.startTime();
 
-                if ((coolDown.time() > 0.25)&&(climberArmPos>0.1)) {
+                if ((coolDown.time() > 0.25)&&(climberArmPos>0.1)&&(!climberArmReset)) {
                     coolDown.reset();
                     climberArmPos = climberArmPos - 0.045;
                 }
-                if (climberArm.getPosition() == 0) {
-                    climberArm.setPosition(caden);
+                if ((climberArm.getPosition() < 0.1)&&(climberArm.getPosition() > 0)) {
+                    climberArmReset = true;
                     coolDown.reset();
+                    climberArm.setPosition(climberArmResetPos);
+
                 }
-                if ((climberArm.getPosition()==caden)&&(coolDown.time() > 0.5)) {
-                    climberArm.setPosition(0.01);
+                if ((climberArm.getPosition()==climberArmResetPos) &&(coolDown.time() > 0.5)&&(climberArmReset)) {
+                    climberArm.setPosition(0.0);
                 }
                 telemetry.addData("CADEN", climberArm.getPosition());
 
 
-                if (colorReading.time()<3){
+                if (colorReading.time()<10){
                     totalRed += color.red();
                     totalBlue += color.blue();
                 }
@@ -175,16 +175,17 @@ public class MyFirstStateMachine extends OpMode {
 
             case 3:
                 climberArm.setPosition(1.0);
-                if (redBeacon == true) {
+                color.enableLed(false);
+                if (redBeacon) {
                     pathSegment = 4;
                 }else {
                     pathSegment = 0;
                 }
 
-                if ((pathSegment > 3) || (pathSegment > 6)){
-                    targetPosLeft = (lastPosLeft + (int)Math.round((beacon[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix
-                    targetPosRight = (lastPosRight + (int)Math.round((beacon[pathSegment][right])*ticksPerInch));
-                    targetSpeed = ((beacon[pathSegment][2])/speedFactor);
+                if ((pathSegment < 3) || (pathSegment < 7)){
+                    targetPosLeft = (lastPosLeft + (int)Math.round((repair[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix
+                    targetPosRight = (lastPosRight + (int)Math.round((repair[pathSegment][right])*ticksPerInch));
+                    targetSpeed = ((repair[pathSegment][2])/speedFactor);
                     motor1.setPower(targetSpeed);                                                   //find motor speed in beacon matrix
                     motor2.setPower(targetSpeed);                                                   //find motor speed in beacon matrix
                     motor1.setTargetPosition(targetPosLeft);                                        //set target position from beacon matrix
