@@ -1,6 +1,11 @@
-
-
 package com.qualcomm.ftcrobotcontroller.opmodes;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -15,13 +20,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 
-public class MyFirstStateMachine extends OpMode {
+public class AutonomousMarkII extends OpMode {
     DcMotor motor1;
     DcMotor motor2;
-    DcMotor motor3;
     Servo climberArm;
-    ColorSensor color_1;
-    ColorSensor color_2;
+    ColorSensor color;
 
     int moveNumber;
     int pathSegment = 0;
@@ -31,7 +34,6 @@ public class MyFirstStateMachine extends OpMode {
     int lastPosRight = 0;
     double targetSpeed = 0;
     double climberArmPos = 0;
-    double intakePower = -1;
     final static double climberArmResetPos = 0.3;
     int loops = 0;
     double totalBlueOne;
@@ -46,32 +48,29 @@ public class MyFirstStateMachine extends OpMode {
     final static int right = 1;
     final static double oneEightyDegreeTurn = (17*Math.PI);
     final static double ninetyDegreeTurn = (8.5*Math.PI);
-    final static double fortyFiveDegreeTurn = (4.25*Math.PI);
+    final static double fortyFiveDegreeTurn = (4.2*Math.PI);
 
     //declare double arrays
     //{left dist, right dist, speed}
 
     //Beacon Path
-    final static double[] b1 = {7.25, 8, 35};
+    final static double[] b1 = {48, 48, 35};
     final static double[] b2 = {fortyFiveDegreeTurn, 0, 25};
-    final static double[] b3 = {60, 60, 50};
-    final static double[] b4 = {0, fortyFiveDegreeTurn, 25};
-    final static double[] b5 = {12, 12, 25};
-    final static double [] b6 = {fortyFiveDegreeTurn, -fortyFiveDegreeTurn, 25};
-    final static double [] b7 = {5, 5, 25};
-    final static double[][] beacon = {b1, b2, b3, b4, b5, b6, b7};
+    final static double[] b3 = {28, 28, 35};
+    final static double[] b4 = {fortyFiveDegreeTurn, 0, 25};
+    final static double[] b5 = {20, 20, 25};
+    final static double[][] beacon = {b1, b2, b3, b4, b5};
 
     //Second Color reading path
     final static double[] cr1 = {3.5, 3.5, 0.25};
     final static double[][] colorReadingMatix = {cr1};
 
     //Repair Path
-    final static double[] r1 = {6, 0, 15};
-    final static double [] r2 = {-6, 0, 15};
-    final static double[] r3 = {0,0,0};
-    final static double[] r4 = {0, 6, 15};
-    final static double [] r5 = {0, -6, 15};
-    final static double[][] repair = {r1, r2, r3, r4, r5};
+    final static double[] r1 = {-2.5,-2.5, 25};
+    final static double[] r2 = {0,0,0};
+    final static double[] r3 = {fortyFiveDegreeTurn/2, -fortyFiveDegreeTurn/2, 25};
+    final static double[] r4 = {3, 3, 50};
+    final static double[][] repair = {r1, r2, r3, r4};
 
     final static double ticksPerInch = (1120/(Math.PI*4)
     );
@@ -80,19 +79,17 @@ public class MyFirstStateMachine extends OpMode {
     public ElapsedTime colorReading = new ElapsedTime();
 
 
-    public MyFirstStateMachine() throws InterruptedException{
+    public AutonomousMarkII() throws InterruptedException{
     }
     @Override
     public void init () {
         motor1 = hardwareMap.dcMotor.get("motor_1");
         motor1.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         motor2 = hardwareMap.dcMotor.get("motor_2");
-        motor3 = hardwareMap.dcMotor.get("motor_3");
         motor2.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         motor1.setDirection(DcMotor.Direction.REVERSE);
         climberArm = hardwareMap.servo.get("servo_1");
-        color_1 = hardwareMap.colorSensor.get("sensor_1");
-        color_2 = hardwareMap.colorSensor.get("sensor_2");
+        color = hardwareMap.colorSensor.get("sensor_1");
 
         moveNumber = 0;
         pathSegment = 0;
@@ -102,17 +99,16 @@ public class MyFirstStateMachine extends OpMode {
     }
     @Override
     public void start(){
-    moveNumber = 1;
+        moveNumber = 1;
         motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
     }
     @Override
     public void loop() {
-        motor3.setPower(intakePower);
 
         switch (moveNumber) {
             case 1:
-                if (pathSegment < 7) {                                                      //repeat 5 times
+                if (pathSegment < 5) {                                                      //repeat 5 times
                     targetPosLeft = (lastPosLeft + (int)Math.round((beacon[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix
                     targetPosRight = (lastPosRight + (int)Math.round((beacon[pathSegment][right])*ticksPerInch));
                     targetSpeed = ((beacon[pathSegment][2])/speedFactor);
@@ -133,9 +129,8 @@ public class MyFirstStateMachine extends OpMode {
                         lastPosRight = motor2.getCurrentPosition();
                         pathSegment++;
                     }
-                 }
-                if (pathSegment == 7) {                                                     //When loops is equal to 3
-                    intakePower = 0;
+                }
+                if (pathSegment == 5) {                                                     //When loops is equal to 3
                     moveNumber++;                                                           //increase the move number
                     pathSegment = 0;                                                        //reset the path segment
                     motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -146,15 +141,14 @@ public class MyFirstStateMachine extends OpMode {
 
 
             case 2:
-                color_1.enableLed(true);
-                color_2.enableLed(true);
+                color.enableLed(true);
                 climberArm.setPosition(climberArmPos);
                 coolDown.startTime();
                 colorReading.startTime();
 
-                if ((coolDown.time() > 0.1)&&(climberArmPos>0.1)&&(!climberArmReset)) {
+                if ((coolDown.time() > 0.25)&&(climberArmPos>0.1)&&(!climberArmReset)) {
                     coolDown.reset();
-                    climberArmPos = climberArmPos - 0.025;
+                    climberArmPos = climberArmPos - 0.045;
                 }
                 if ((climberArm.getPosition() < 0.1)&&(climberArm.getPosition() > 0)&&(coolDown.time()>0.25)) {
                     climberArmReset = true;
@@ -162,7 +156,7 @@ public class MyFirstStateMachine extends OpMode {
                     coolDown.reset();
 
                 }
-               if ((Math.abs(climberArm.getPosition()-climberArmResetPos) < 0.1) &&(coolDown.time() > 0.5)&&(climberArmReset)) {
+                if ((Math.abs(climberArm.getPosition()-climberArmResetPos) < 0.1) &&(coolDown.time() > 0.5)&&(climberArmReset)) {
                     climberArmPos = 0;
 
                 }
@@ -170,35 +164,21 @@ public class MyFirstStateMachine extends OpMode {
 
 
                 if (colorReading.time()<10){
-                    totalBlueOne += color_1.blue();
-                    totalBlueTwo += color_2.blue();
+                    totalBlueOne += color.blue();
                 }
                 else {
-                    if (totalBlueTwo > totalBlueOne) {
-                        pathSegment = 0;
-                        motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-                        motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-                        lastPosRight = 0;
-                        lastPosLeft = 0;
-                        moveNumber++;
-                    } else {
-                        pathSegment = 3;
-                        motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-                        motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-                        lastPosRight = 0;
-                        lastPosLeft = 0;
-                        moveNumber++;
-                    }
+                    pathSegment = 0;
+                    moveNumber++;
                 }
                 break;
 
-
+            /*
             case 3:
                 climberArm.setPosition(1.0);
-                if (pathSegment < 5){
-                    targetPosLeft = (lastPosLeft + (int)Math.round((repair[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix
-                    targetPosRight = (lastPosRight + (int)Math.round((repair[pathSegment][right])*ticksPerInch));
-                    targetSpeed = ((repair[pathSegment][2])/speedFactor);
+                if (pathSegment == 0){
+                    targetPosLeft = (lastPosLeft + (int)Math.round((colorReadingMatix[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix
+                    targetPosRight = (lastPosRight + (int)Math.round((colorReadingMatix[pathSegment][right])*ticksPerInch));
+                    targetSpeed = ((colorReadingMatix[pathSegment][2])/speedFactor);
                     motor1.setPower(targetSpeed);                                                   //find motor speed in beacon matrix
                     motor2.setPower(targetSpeed);                                                   //find motor speed in beacon matrix
                     motor1.setTargetPosition(targetPosLeft);                                        //set target position from beacon matrix
@@ -217,7 +197,7 @@ public class MyFirstStateMachine extends OpMode {
                         pathSegment++;
                     }
                 }
-                if ((pathSegment == 2) || pathSegment == 5) {
+                if (pathSegment == 1) {
                     colorReading.reset();
                     moveNumber++;                                                           //increase the move number
                     pathSegment = 0;                                                        //reset the path segment
@@ -225,11 +205,11 @@ public class MyFirstStateMachine extends OpMode {
                     motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
                 }
                 break;
-/*
+
             case 4:
                 if (colorReading.time() < 5) {
                     totalBlueTwo += color.blue();
-            }
+                }
                 else{
                     if(totalBlueOne>totalBlueTwo){
                         pathSegment = 0;
@@ -240,6 +220,7 @@ public class MyFirstStateMachine extends OpMode {
                     }
                 }
                 break;
+                */
 
 /*
             case 4:

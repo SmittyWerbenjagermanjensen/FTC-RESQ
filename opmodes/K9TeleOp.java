@@ -66,8 +66,11 @@ public class K9TeleOp extends OpMode {
 	// amount to change the claw servo position by
 	double clawDelta = 0.1;
 
+	double intakespeed = 1;
+
 	DcMotor motorRight;
 	DcMotor motorLeft;
+	DcMotor motorIntake;
 	//Servo claw;
 	//Servo arm;
 
@@ -103,16 +106,17 @@ public class K9TeleOp extends OpMode {
 		 *    "servo_1" controls the arm joint of the manipulator.
 		 *    "servo_6" controls the claw joint of the manipulator.
 		 */
-		motorRight = hardwareMap.dcMotor.get("motor2");
-		motorLeft = hardwareMap.dcMotor.get("motor1");
+		motorRight = hardwareMap.dcMotor.get("motor_2");
+		motorLeft = hardwareMap.dcMotor.get("motor_1");
+		motorIntake = hardwareMap.dcMotor.get("motor_3");
 		motorLeft.setDirection(DcMotor.Direction.REVERSE);
 		
 		//arm = hardwareMap.servo.get("servo_1");
 		//claw = hardwareMap.servo.get("servo_6");
 
 		// assign the starting position of the wrist and claw
-		armPosition = 0.2;
-		clawPosition = 0.2;
+		//armPosition = 0.2;
+		//clawPosition = 0.2;
 	}
 
 	/*
@@ -134,6 +138,17 @@ public class K9TeleOp extends OpMode {
 		// 1 is full down
 		// direction: left_stick_x ranges from -1 to 1, where -1 is full left
 		// and 1 is full right
+		motorLeft.setPower(-gamepad1.left_stick_y);
+		motorRight.setPower(-gamepad1.right_stick_y);
+		motorIntake.setPower(intakespeed);
+
+		if (gamepad1.x) {
+			intakespeed = intakespeed * -1;
+		}
+
+
+
+		/*
 		float throttle = -gamepad1.left_stick_y;
 		float direction = gamepad1.left_stick_x;
 		float right = throttle - direction;
@@ -151,7 +166,7 @@ public class K9TeleOp extends OpMode {
 		// write the values to the motors
 		motorRight.setPower(right);
 		motorLeft.setPower(left);
-
+/*
 		// update the position of the arm.
 		if (gamepad1.a) {
 			// if the A button is pushed on gamepad1, increment the position of
@@ -190,11 +205,10 @@ public class K9TeleOp extends OpMode {
 		 * will return a null value. The legacy NXT-compatible motor controllers
 		 * are currently write only.
 		 */
-        telemetry.addData("Text", "*** Robot Data***");
-        telemetry.addData("arm", "arm:  " + String.format("%.2f", armPosition));
-        telemetry.addData("claw", "claw:  " + String.format("%.2f", clawPosition));
-        telemetry.addData("left tgt pwr",  "left  pwr: " + String.format("%.2f", left));
-        telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
+       // telemetry.addData("Text", "*** Robot Data***");
+        //telemetry.addData("arm", "arm:  " + String.format("%.2f", armPosition));
+       // telemetry.addData("claw", "claw:  " + String.format("%.2f", clawPosition));
+
 
 	}
 
