@@ -34,6 +34,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 /**
@@ -43,36 +44,24 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class K9TeleOp extends OpMode {
 	
-	/*
-	 * Note: the configuration of the servos is such that
-	 * as the arm servo approaches 0, the arm position moves up (away from the floor).
-	 * Also, as the claw servo approaches 0, the claw opens up (drops the game element).
-	 */
-	// TETRIX VALUES.
-	final static double ARM_MIN_RANGE  = 0.20;
-	final static double ARM_MAX_RANGE  = 0.90;
-	final static double CLAW_MIN_RANGE  = 0.20;
-	final static double CLAW_MAX_RANGE  = 0.7;
-
-	// position of the arm servo.
-	double armPosition;
-
-	// amount to change the arm servo position.
-	double armDelta = 0.1;
-
-	// position of the claw servo
-	double clawPosition;
-
-	// amount to change the claw servo position by
-	double clawDelta = 0.1;
 
 	double intakespeed = 1;
+	boolean intake = true;
+	boolean score = false;
+	double rightPower;
+	double leftPower;
+	boolean driveStyle = true;
+	double speedRatio = 1;
+	public ElapsedTime toggle = new ElapsedTime();
 
 	DcMotor motorRight;
 	DcMotor motorLeft;
 	DcMotor motorIntake;
-	//Servo claw;
-	//Servo arm;
+	Servo rightServo;
+	Servo leftServo;
+	Servo intakeServo;
+	Servo scoringServo;
+
 
 	/**
 	 * Constructor
@@ -90,62 +79,75 @@ public class K9TeleOp extends OpMode {
 	public void init() {
 
 
-		/*
-		 * Use the hardwareMap to get the dc motors and servos by name. Note
-		 * that the names of the devices must match the names used when you
-		 * configured your robot and created the configuration file.
-		 */
-		
-		/*
-		 * For the demo Tetrix K9 bot we assume the following,
-		 *   There are two motors "motor_1" and "motor_2"
-		 *   "motor_1" is on the right side of the bot.
-		 *   "motor_2" is on the left side of the bot and reversed.
-		 *   
-		 * We also assume that there are two servos "servo_1" and "servo_6"
-		 *    "servo_1" controls the arm joint of the manipulator.
-		 *    "servo_6" controls the claw joint of the manipulator.
-		 */
+		intakeServo = hardwareMap.servo.get("servo_1");
 		motorRight = hardwareMap.dcMotor.get("motor_2");
 		motorLeft = hardwareMap.dcMotor.get("motor_1");
 		motorIntake = hardwareMap.dcMotor.get("motor_3");
+		rightServo = hardwareMap.servo.get("servo_2");
+		leftServo = hardwareMap.servo.get("servo_3");
+		scoringServo = hardwareMap.servo.get("servo_4");
 		motorLeft.setDirection(DcMotor.Direction.REVERSE);
-		
-		//arm = hardwareMap.servo.get("servo_1");
-		//claw = hardwareMap.servo.get("servo_6");
+		toggle.startTime();
 
-		// assign the starting position of the wrist and claw
-		//armPosition = 0.2;
-		//clawPosition = 0.2;
+
 	}
 
-	/*
-	 * This method will be called repeatedly in a loop
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
-	 */
+
 	@Override
 	public void loop() {
+		intakeServo.setPosition(1.0);
+		motorLeft.setPower(leftPower*speedRatio);
+		motorRight.setPower(rightPower * speedRatio);
+		motorIntake.setPower(intakespeed);
+		if (toggle.time() > 0.5) {
 
-		/*
-		 * Gamepad 1
-		 * 
-		 * Gamepad 1 controls the motors via the left stick, and it controls the
-		 * wrist/claw via the a,b, x, y buttons
-		 */
+			if (gamepad1.dpad_up) {
+				speedRatio = 1;
+				toggle.reset();
+			}
+			if (gamepad1.dpad_down) {
+				speedRatio = 0.25 ;
+				toggle.reset();
+			}
 
+
+		}
 		// throttle: left_stick_y ranges from -1 to 1, where -1 is full up, and
 		// 1 is full down
 		// direction: left_stick_x ranges from -1 to 1, where -1 is full left
 		// and 1 is full right
-		motorLeft.setPower(-gamepad1.left_stick_y);
-		motorRight.setPower(-gamepad1.right_stick_y);
-		motorIntake.setPower(intakespeed);
-
-		if (gamepad1.x) {
-			intakespeed = intakespeed * -1;
+		if (score) {
+			scoringServo.setPosition(1);
+		} else {
+			scoringServo.setPosition(0);
 		}
 
+			intakespeed = -gamepad2.left_stick_y;
+
+
+
+			leftPower = -gamepad1.left_stick_y;
+			rightPower = -gamepad1.right_stick_y;
+
+
+
+		if (gamepad2.right_bumper) {
+			rightServo.setPosition(0);
+		}
+		else {
+			rightServo.setPosition(1);
+		}
+		if (gamepad2.left_bumper) {
+			leftServo.setPosition(1);
+		} else {
+			leftServo.setPosition(0);
+		}
+
+		if (gamepad2.b) {
+			scoringServo.setPosition(1);
+		} else {
+			scoringServo.setPosition(0);
+		}
 
 
 		/*

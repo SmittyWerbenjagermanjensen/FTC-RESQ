@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 
-public class MyFirstStateMachine extends OpMode {
+public class redAutonomous extends OpMode {
     DcMotor motor1;
     DcMotor motor2;
     DcMotor motor3;
@@ -55,11 +55,11 @@ public class MyFirstStateMachine extends OpMode {
 
     //Beacon Path
     final static double[] b1 = {8, 8, 35};
-    final static double[] b2 = {fortyFiveDegreeTurn, 0, 25};
+    final static double[] b2 = {0, fortyFiveDegreeTurn, 25};
     final static double[] b3 = {60, 60, 35};
-    final static double[] b4 = {0, fortyFiveDegreeTurn, 25};
-    final static double[] b5 = {12, 12, 25};
-    final static double [] b6 = {fortyFiveDegreeTurn, -fortyFiveDegreeTurn, 25};
+    final static double[] b4 = {fortyFiveDegreeTurn, 0, 25};
+    final static double[] b5 = {13, 13, 25};
+    final static double [] b6 = {-fortyFiveDegreeTurn, fortyFiveDegreeTurn, 25};
     final static double [] b7 = {2, 2, 25};
     final static double[][] beacon = {b1, b2, b3, b4, b5, b6, b7};
 
@@ -82,7 +82,7 @@ public class MyFirstStateMachine extends OpMode {
     public ElapsedTime colorReading = new ElapsedTime();
 
 
-    public MyFirstStateMachine() throws InterruptedException{
+    public redAutonomous() throws InterruptedException{
     }
     @Override
     public void init () {
@@ -110,7 +110,7 @@ public class MyFirstStateMachine extends OpMode {
     }
     @Override
     public void start(){
-    moveNumber = 1;
+        moveNumber = 1;
         motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         rightZiplineTrigger.setPosition(1);
@@ -146,7 +146,7 @@ public class MyFirstStateMachine extends OpMode {
                         lastPosRight = motor2.getCurrentPosition();
                         pathSegment++;
                     }
-                 }
+                }
                 if (pathSegment == 7) {                                                     //When loops is equal to 3
                     intakePower = 0;
                     moveNumber++;                                                           //increase the move number
@@ -175,7 +175,7 @@ public class MyFirstStateMachine extends OpMode {
                     coolDown.reset();
 
                 }
-               if ((Math.abs(climberArm.getPosition()-climberArmResetPos) < 0.1) &&(coolDown.time() > 0.5)&&(climberArmReset)) {
+                if ((Math.abs(climberArm.getPosition()-climberArmResetPos) < 0.1) &&(coolDown.time() > 0.5)&&(climberArmReset)) {
                     climberArmPos = 0;
 
                 }
@@ -206,7 +206,7 @@ public class MyFirstStateMachine extends OpMode {
                 break;
 
 
-            case 999: //CHANGE FOR BUTTON
+            case 999:       //CHANGE FOR BUTTONSn 
                 climberArm.setPosition(1.0);
                 if (pathSegment < 5){
                     targetPosLeft = (lastPosLeft + (int)Math.round((repair[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix
