@@ -12,7 +12,7 @@ public class GyroTest extends LinearOpMode {
         double yaw;
         int desiredAngle;
         double speed;
-        ElapsedTime timer;
+        public ElapsedTime timer = new ElapsedTime();
 
     private double getTheta() {
         timer.reset();

@@ -54,13 +54,13 @@ public class redAutonomous extends OpMode {
     //{left dist, right dist, speed}
 
     //Beacon Path
-    final static double[] b1 = {8, 8, 35};
+    final static double[] b1 = {12, 11.7, 25};
     final static double[] b2 = {0, fortyFiveDegreeTurn, 25};
-    final static double[] b3 = {60, 60, 35};
-    final static double[] b4 = {fortyFiveDegreeTurn, 0, 25};
-    final static double[] b5 = {13, 13, 25};
-    final static double [] b6 = {-fortyFiveDegreeTurn, fortyFiveDegreeTurn, 25};
-    final static double [] b7 = {2, 2, 25};
+    final static double[] b3 = {55, 55, 20};
+    final static double[] b4 = {fortyFiveDegreeTurn, 0, 35};
+    final static double[] b5 = {12, 12, 35};
+    final static double [] b6 = {-fortyFiveDegreeTurn, fortyFiveDegreeTurn, 35};
+    final static double [] b7 = {2.5, 2.5, 35};
     final static double[][] beacon = {b1, b2, b3, b4, b5, b6, b7};
 
     //Second Color reading path
@@ -175,7 +175,7 @@ public class redAutonomous extends OpMode {
                     coolDown.reset();
 
                 }
-                if ((Math.abs(climberArm.getPosition()-climberArmResetPos) < 0.1) &&(coolDown.time() > 0.5)&&(climberArmReset)) {
+                if ((Math.abs(climberArm.getPosition()-climberArmResetPos) < 0.1) &&(coolDown.time() > 0.7)&&(climberArmReset)) {
                     climberArmPos = 0;
 
                 }

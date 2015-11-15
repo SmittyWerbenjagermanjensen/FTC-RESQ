@@ -76,6 +76,7 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register("BLUE_AUTONOMOUS", MyFirstStateMachine.class);
     manager.register("COLORAVERAGE", COLORAVERAGES.class);
     manager.register("RED_AUTONOMOUS", redAutonomous.class);
+    manager.register("GyroTest", Gyrotest2.class);
     //manager.register("IrSeekerOp", IrSeekerOp.class);
     //manager.register("CompassCalibration", CompassCalibration.class);
     //manager.register("I2cAddressChangeExample", LinearI2cAddressChange.class);
