@@ -41,6 +41,7 @@ public class MyFirstStateMachine extends OpMode {
     boolean redBeacon = false;
     boolean blueBeacon = false;
     boolean climberArmReset = false;
+    int e;
 
 
 
@@ -54,14 +55,14 @@ public class MyFirstStateMachine extends OpMode {
     //{left dist, right dist, speed}
 
     //Beacon Path
-    final static double[] b1 = {12, 12, 25};
+    final static double[] b1 = {11.7, 12, 25};
     final static double[] b2 = {fortyFiveDegreeTurn, 0, 25};
-    final static double[] b3 = {55, 55, 20};
-    final static double[] b4 = {0, fortyFiveDegreeTurn, 35};
-    final static double[] b5 = {12, 12, 35};
-    final static double [] b6 = {fortyFiveDegreeTurn, -fortyFiveDegreeTurn, 35};
-    final static double [] b7 = {2.5, 2.5, 35};
-    final static double[][] beacon = {b1, b2, b3, b4, b5, b6, b7};
+    final static double[] b3 = {77, 77, 20};  //working numbers : 75 75 20
+    final static double[] b4 = {fortyFiveDegreeTurn, 0, 35};
+    final static double[] b5 = {5, 5, 25};   //working number : 7 7 25
+    //final static double [] b6 = {fortyFiveDegreeTurn, -fortyFiveDegreeTurn, 35};
+   // final static double [] b7 = {2.5, 2.5, 35};
+    final static double[][] beacon = {b1, b2, b3, b4, b5};
 
     //Second Color reading path
     final static double[] cr1 = {3.5, 3.5, 0.25};
@@ -108,13 +109,15 @@ public class MyFirstStateMachine extends OpMode {
         motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
     }
+
+
     @Override
     public void start(){
     moveNumber = 1;
         motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-        rightZiplineTrigger.setPosition(1);
-        leftZiplineTrigger.setPosition(0);
+        rightZiplineTrigger.setPosition(0);
+        leftZiplineTrigger.setPosition(0.7);
         climberArm.setPosition(1);
 
     }
@@ -125,7 +128,7 @@ public class MyFirstStateMachine extends OpMode {
 
         switch (moveNumber) {
             case 1:
-                if (pathSegment < 7) {                                                      //repeat 5 times
+                if (pathSegment < 5) {                                                      //repeat 5 times
                     targetPosLeft = (lastPosLeft + (int)Math.round((beacon[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix
                     targetPosRight = (lastPosRight + (int)Math.round((beacon[pathSegment][right])*ticksPerInch));
                     targetSpeed = ((beacon[pathSegment][2])/speedFactor);
@@ -147,7 +150,7 @@ public class MyFirstStateMachine extends OpMode {
                         pathSegment++;
                     }
                  }
-                if (pathSegment == 7) {                                                     //When loops is equal to 3
+                if (pathSegment == 5) {                                                     //When loops is equal to 3
                     intakePower = 0;
                     moveNumber++;                                                           //increase the move number
                     pathSegment = 0;                                                        //reset the path segment

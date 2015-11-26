@@ -41,6 +41,8 @@ public class redAutonomous extends OpMode {
     boolean redBeacon = false;
     boolean blueBeacon = false;
     boolean climberArmReset = false;
+    int e;
+    boolean button;
 
 
 
@@ -56,12 +58,12 @@ public class redAutonomous extends OpMode {
     //Beacon Path
     final static double[] b1 = {12, 11.7, 25};
     final static double[] b2 = {0, fortyFiveDegreeTurn, 25};
-    final static double[] b3 = {55, 55, 20};
-    final static double[] b4 = {fortyFiveDegreeTurn, 0, 35};
-    final static double[] b5 = {12, 12, 35};
-    final static double [] b6 = {-fortyFiveDegreeTurn, fortyFiveDegreeTurn, 35};
-    final static double [] b7 = {2.5, 2.5, 35};
-    final static double[][] beacon = {b1, b2, b3, b4, b5, b6, b7};
+    final static double[] b3 = {75, 75, 20};
+    final static double[] b4 = {0, fortyFiveDegreeTurn, 35};
+    final static double[] b5 = {6, 6, 35};
+   // final static double [] b6 = {-fortyFiveDegreeTurn, fortyFiveDegreeTurn, 35};
+   // final static double [] b7 = {2.5, 2.5, 35};
+    final static double[][] beacon = {b1, b2, b3, b4, b5};
 
     //Second Color reading path
     final static double[] cr1 = {3.5, 3.5, 0.25};
@@ -73,6 +75,7 @@ public class redAutonomous extends OpMode {
     final static double[] r3 = {0,0,0};
     final static double[] r4 = {0, 6, 15};
     final static double [] r5 = {0, -6, 15};
+
     final static double[][] repair = {r1, r2, r3, r4, r5};
 
     final static double ticksPerInch = (1120/(Math.PI*4)
@@ -107,15 +110,34 @@ public class redAutonomous extends OpMode {
         climberArmPos = 1;
         motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+
+
+
+
+
+
     }
+    @Override
+    public void init_loop() {
+        e++;
+        telemetry.addData("e",e);
+    }
+
     @Override
     public void start(){
         moveNumber = 1;
         motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-        rightZiplineTrigger.setPosition(1);
-        leftZiplineTrigger.setPosition(0);
+        rightZiplineTrigger.setPosition(0);
+        leftZiplineTrigger.setPosition(0.7);
         climberArm.setPosition(1);
+
+        if (e > 350){
+            button = false;
+        }
+        else {
+            button = true;
+        }
 
     }
 
@@ -125,7 +147,7 @@ public class redAutonomous extends OpMode {
 
         switch (moveNumber) {
             case 1:
-                if (pathSegment < 7) {                                                      //repeat 5 times
+                if (pathSegment < 5) {                                                      //repeat 5 times
                     targetPosLeft = (lastPosLeft + (int)Math.round((beacon[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix
                     targetPosRight = (lastPosRight + (int)Math.round((beacon[pathSegment][right])*ticksPerInch));
                     targetSpeed = ((beacon[pathSegment][2])/speedFactor);
@@ -147,7 +169,7 @@ public class redAutonomous extends OpMode {
                         pathSegment++;
                     }
                 }
-                if (pathSegment == 7) {                                                     //When loops is equal to 3
+                if (pathSegment == 5) {                                                     //When loops is equal to 3
                     intakePower = 0;
                     moveNumber++;                                                           //increase the move number
                     pathSegment = 0;                                                        //reset the path segment
@@ -177,36 +199,27 @@ public class redAutonomous extends OpMode {
                 }
                 if ((Math.abs(climberArm.getPosition()-climberArmResetPos) < 0.1) &&(coolDown.time() > 0.7)&&(climberArmReset)) {
                     climberArmPos = 0;
+                    if (button) {
+                        pathSegment = 0;
+                        climberArm.setPosition(1);
+                        moveNumber++;
+                    } else {
+                        pathSegment = 3;
+                        climberArm.setPosition(1);
+                        moveNumber++;
+                    }
+
+
 
                 }
+
                 telemetry.addData("CADEN", climberArm.getPosition());
 
 
-                if (colorReading.time()<10){                //If the time is less than 10 seconds
-                    totalBlueOne += color_1.blue();         //add the blue readings from one sensor
-                    totalBlueTwo += color_2.blue();         //add the blue readings from the second sensor
-                }
-                else {
-                    if (totalBlueTwo > totalBlueOne) {      //The second sensor is greater than the first
-                        pathSegment = 0;                    //set it to run the first half of the matrix
-                        motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-                        motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-                        lastPosRight = 0;                   //reset motor target
-                        lastPosLeft = 0;                    //reset motor target
-                        moveNumber++;                       //go to the next move segment
-                    } else {
-                        pathSegment = 3;                    //set it to run the econd half of the matrix
-                        motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-                        motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-                        lastPosRight = 0;                   //reset motor target
-                        lastPosLeft = 0;                    //reset motor target
-                        moveNumber++;                       //go to the next move segment
-                    }
-                }
                 break;
 
 
-            case 999:       //CHANGE FOR BUTTONSn 
+            case 3:       //CHANGE FOR BUTTONSn
                 climberArm.setPosition(1.0);
                 if (pathSegment < 5){
                     targetPosLeft = (lastPosLeft + (int)Math.round((repair[pathSegment][left]) * ticksPerInch));    //find target position in beacon matrix

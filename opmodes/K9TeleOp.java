@@ -61,7 +61,11 @@ public class K9TeleOp extends OpMode {
 	Servo leftServo;
 	Servo intakeServo;
 	Servo scoringServo;
+	DcMotor motor_4;
 
+	double n;
+
+	double m;
 
 	/**
 	 * Constructor
@@ -88,6 +92,7 @@ public class K9TeleOp extends OpMode {
 		scoringServo = hardwareMap.servo.get("servo_4");
 		motorLeft.setDirection(DcMotor.Direction.REVERSE);
 		toggle.startTime();
+		motor_4 = hardwareMap.dcMotor.get("motor_4");
 
 
 	}
@@ -130,24 +135,67 @@ public class K9TeleOp extends OpMode {
 			rightPower = -gamepad1.right_stick_y;
 
 
+		/*while (gamepad2.b){
+			m=m+0.02;
+			scoringServo.setPosition(m);
+		}
 
-		if (gamepad2.right_bumper) {
-			rightServo.setPosition(0);
+		while(gamepad2.a){
+			m=m-0.02;
+			scoringServo.setPosition(m);
+		}*/
+
+		/*if ((gamepad2.right_bumper) && (rightServo.getPosition()<1)) {
+			rightServo.setPosition(n);
+			n = n+0.02;
+		}
+
+		else {
+			rightServo.setPosition(n);
+		}
+
+
+		if ((gamepad2.left_bumper) && (rightServo.getPosition()>0)) {
+			leftServo.setPosition(n);
+			n = n-0.02;
 		}
 		else {
-			rightServo.setPosition(1);
+			leftServo.setPosition(n);
 		}
-		if (gamepad2.left_bumper) {
-			leftServo.setPosition(1);
-		} else {
-			leftServo.setPosition(0);
-		}
-
+*/
 		if (gamepad2.b) {
 			scoringServo.setPosition(1);
 		} else {
 			scoringServo.setPosition(0);
 		}
+
+		if (gamepad2.right_bumper){
+			rightServo.setPosition(0.77	);
+		}
+
+		else{
+			rightServo.setPosition(0);
+		}
+
+		if (gamepad2.left_bumper){
+			leftServo.setPosition(0);
+		}
+		else{
+			leftServo.setPosition(0.7);
+		}
+
+		if (gamepad2.dpad_down){
+			intakeServo.setPosition(1);
+		}
+
+		if (gamepad2.dpad_up){
+			intakeServo.setPosition(0);
+		}
+
+
+
+
+motor_4.setPower(-gamepad2.right_stick_y);
 
 
 		/*
